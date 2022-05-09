@@ -1,0 +1,38 @@
+---
+title: "R Notebook"
+output: NULL
+author: "Jinliang Yang"
+---
+
+
+
+Note, below is command line scripts:
+
+
+```{bash}
+# clone your github repo to HCC
+git clone git@github.com:yangjl/sheryls_data.git
+
+# copy data from local to HCC
+scp -r ~/Downloads/SHERYL_PLINK_VCF/ crane:/common/jyanglab/jyang21/courses/sheryls_data/largedata/
+
+# request computational node
+srun --qos=short --nodes=1 --licenses=common --ntasks=4 --mem 32G --time 6:00:00 --pty bash
+
+```
+
+
+Then, following slides provided in the class
+https://jyanglab.com/slides/2022-agro932/w15lab_gwas2.html#11
+
+```{bash}
+module load plink/1.90
+#
+cd largedata/SHERYL_PLINK_VCF
+
+plink --file Geno.plk --allow-extra-chr --make-bed --out Geno.plk
+
+plink -bfile Geno.plk --allow-extra-chr --freq --missing --out Geno.plk
+```
+
+
