@@ -14,7 +14,8 @@ Note, below is command line scripts:
 git clone git@github.com:yangjl/sheryls_data.git
 
 # copy data from local to HCC
-scp -r ~/Downloads/SHERYL_PLINK_VCF/ crane:/common/jyanglab/jyang21/courses/sheryls_data/largedata/
+# pwd
+scp -r ~/Downloads/SHERYL_PLINK_VCF/ crane:/common/jyanglab/jyang21/courses/sheryls_data/largedata/test
 
 # request computational node
 srun --qos=short --nodes=1 --licenses=common --ntasks=4 --mem 32G --time 6:00:00 --pty bash
@@ -33,6 +34,43 @@ cd largedata/SHERYL_PLINK_VCF
 plink --file Geno.plk --allow-extra-chr --make-bed --out Geno.plk
 
 plink -bfile Geno.plk --allow-extra-chr --freq --missing --out Geno.plk
+ls -l
+
+plink -bfile Geno.plk --allow-extra-chr --pca 'header' --out Geno.plk
+
+module load gemma
+# To calculate centered relatedness matrix (will take ~ 1 min):
+gemma -bfile Geno.plk -gk 1 -o Geno.plk
+
+module load R
+R
 ```
 
+### Fix missing data issue
+
+```{r}
+library("data.table")
+ped <- fread("Geno.plk.ped", header=FALSE)
+ped$V6 <- 1
+fwrite(ped, "Geno.plk.ped", sep="\t", row.names=FALSE, col.names = FALSE, quote=FALSE)
+fam <- fread("Geno.plk.fam", header=FALSE)
+fam$V6 <- 1
+fwrite(fam, "Geno.plk.fam", sep="\t", row.names=FALSE, col.names = FALSE, quote=FALSE)
+```
+
+tjlejlrtjee
+
+```{bash}
+plink --file Geno.plk --allow-extra-chr --make-bed --out Geno.plk
+# To calculate centered relatedness matrix (will take ~ 1 min):
+gemma -bfile Geno.plk -gk 1 -o Geno.plk
+```
+
+```{r}
+# cd to largedata/RiceDiversity_44K_Genotypes_PLINK
+pca <- read.table("Geno.plk.eigenvec", header=TRUE)
+pca[,2] <- 1
+write.table(pca[,2:5], "pc3.txt", sep="\t", row.names=FALSE, 
+            quote=FALSE, col.names = FALSE)
+```
 
