@@ -70,21 +70,26 @@ gemma -bfile Geno.plk -gk 1 -o Geno.plk
 
 ```{r}
 # cd to largedata/RiceDiversity_44K_Genotypes_PLINK
-pca <- read.table("Geno.plk.eigenvec", header=TRUE)
+pca <- read.table("largedata/SHERYL_PLINK_VCF/Geno.plk.eigenvec", header=TRUE)
 pca[,2] <- 1
-write.table(pca[,2:5], "pc3.txt", sep="\t", row.names=FALSE, 
+write.table(pca[,2:5], "largedata/SHERYL_PLINK_VCF/pc3.txt", sep="\t", row.names=FALSE, 
             quote=FALSE, col.names = FALSE)
 ```
 
 ### Fix the phenotype issue
 
 ```{r}
-pheno <- read.table("Book1.txt")
+fam <- read.table("largedata/SHERYL_PLINK_VCF/Geno.plk.fam", header=FALSE)
+pheno <- read.delim("data/Book1.txt")
+
+p <- merge(fam, pheno, by.x="V2", by.y="FID", all.x=TRUE, sort=FALSE)
+write.table(p[,9:12], "largedata/SHERYL_PLINK_VCF/pheno.txt", sep="\t", row.names=FALSE, 
+            quote=FALSE, col.names = FALSE)
 ```
 
 
 ```{bash}
-gemma -bfile Geno.plk -c pc3.txt -k output/Geno.plk.cXX.txt -p Book1.txt -lmm 4 -n 4 -o PRO -miss 0.9 -r2 1 -hwe 0 -maf 0.05
+gemma -bfile Geno.plk -c pc3.txt -k output/Geno.plk.cXX.txt -p pheno.txt -lmm 4 -n 4 -o PRO -miss 0.9 -r2 1 -hwe 0 -maf 0.05
 cp output/Plant.height.assoc.txt ../../cache
 ```
 
